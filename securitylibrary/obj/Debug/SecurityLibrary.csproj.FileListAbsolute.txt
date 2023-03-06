@@ -18,3 +18,9 @@ D:\FCIS\4th\Network Security\SecurityPackage\SecurityPackage\SecurityLibrary\obj
 D:\FCIS\4th\Network Security\SecurityPackage\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.csproj.CoreCompileInputs.cache
 D:\FCIS\4th\Network Security\SecurityPackage\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.dll
 D:\FCIS\4th\Network Security\SecurityPackage\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.pdb
+E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityLibrary\bin\Debug\SecurityLibrary.dll
+E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityLibrary\bin\Debug\SecurityLibrary.pdb
+E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.csproj.AssemblyReference.cache
+E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.csproj.CoreCompileInputs.cache
+E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.dll
+E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityLibrary\obj\Debug\SecurityLibrary.pdb

@@ -8,19 +8,92 @@ namespace SecurityLibrary
 {
     public class Monoalphabetic : ICryptographicTechnique<string, string>
     {
+        private string alphabet = "abcdefghijklmnopqrstuvwxyz";
         public string Analyse(string plainText, string cipherText)
         {
-            throw new NotImplementedException();
+            cipherText = cipherText.ToLower();
+            plainText =  plainText.ToLower();
+            string charsNotInCipher = "";
+            string key = "";
+            int charNotInCipherIndex = 0;
+
+            for (int char_no = 0; char_no < alphabet.Length; char_no++)
+            {
+                if (!cipherText.Contains(alphabet[char_no]))
+                {
+                    charsNotInCipher += alphabet[char_no];
+                }
+            }
+
+
+            for (int alphabetChar_no = 0; alphabetChar_no < alphabet.Length; alphabetChar_no++)
+            {
+                bool charInPlain = false;
+                int indexTemp = -1;
+
+                for (int char_no = 0; char_no < plainText.Length; char_no++)
+                {
+                    if(plainText[char_no] == alphabet[alphabetChar_no])
+                    {
+                        charInPlain = true;
+                        indexTemp = char_no;
+                        break;
+                    }    
+                }
+
+                if(charInPlain)
+                {
+                    key += cipherText[indexTemp];
+                }    
+
+                else
+                {
+                    key += charsNotInCipher[charNotInCipherIndex];
+                    charNotInCipherIndex++;
+                }    
+            }
+
+
+            return key;
         }
 
         public string Decrypt(string cipherText, string key)
         {
-            throw new NotImplementedException();
+            cipherText = cipherText.ToLower();
+            string plainText = "";
+            char charTemp;
+            int charIndexInKey;
+
+            // 97 is the ascii of char a
+            for (int char_no = 0; char_no < cipherText.Length; char_no++)
+            {
+                charTemp = cipherText[char_no];
+                charIndexInKey = key.IndexOf(charTemp);
+                charIndexInKey += 97;
+                plainText += Convert.ToChar(charIndexInKey);
+            }
+
+
+            return plainText;
         }
 
         public string Encrypt(string plainText, string key)
         {
-            throw new NotImplementedException();
+            plainText = plainText.ToLower();
+            string cipherText = "";
+            char charTemp;
+            int keyIndex;
+
+            // 97 is the ascii of char a
+            for (int char_no = 0; char_no < plainText.Length; char_no++)
+            {
+                charTemp = plainText[char_no];
+                keyIndex = charTemp - 97;
+                cipherText += key[keyIndex];    
+            }
+
+
+            return cipherText;
         }
 
         /// <summary>
@@ -56,7 +129,39 @@ namespace SecurityLibrary
         /// <returns>Plain text</returns>
         public string AnalyseUsingCharFrequency(string cipher)
         {
-            throw new NotImplementedException();
+            cipher = cipher.ToLower();
+            string freqInCipher = "";
+            string freqInEnglish = "ETAOINSRHLDCUMFPGWYBVKXJQZ";
+            Dictionary<char,double> charsFrequency = new Dictionary<char, double>();
+            
+
+            for (int char_no = 0; char_no < alphabet.Length; char_no++)
+            {
+                charsFrequency.Add(alphabet[char_no], 0.0);
+            }
+
+            for (int char_no = 0; char_no < cipher.Length; char_no++)
+            {
+                charsFrequency[cipher[char_no]]++;
+            }
+
+            for (int char_no = 0; char_no < alphabet.Length; char_no++)
+            {
+                char temp = Convert.ToChar(char_no + 97);
+                charsFrequency[temp] = (charsFrequency[temp] * 100) / cipher.Length;
+            }
+
+            char charWithHeighstFreq;
+            for (int char_no = 0; char_no < alphabet.Length; char_no++)
+            {
+                charWithHeighstFreq = charsFrequency.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
+                charsFrequency[charWithHeighstFreq] = -1;
+                freqInCipher += charWithHeighstFreq;
+            }
+
+            string key = Analyse(freqInEnglish.ToLower(), freqInCipher);
+
+            return Decrypt(cipher, key);
         }
     }
 }
