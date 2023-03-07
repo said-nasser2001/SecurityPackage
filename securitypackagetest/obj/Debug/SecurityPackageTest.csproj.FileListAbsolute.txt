@@ -44,3 +44,12 @@ E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityPackageTest\
 E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.dll
 E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.pdb
 E:\Fcis\4th Year Fcis\8th semester\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.csproj.CopyComplete
+D:\Study\Security\SecurityPackage\SecurityPackageTest\bin\Debug\SecurityPackageTest.dll
+D:\Study\Security\SecurityPackage\SecurityPackageTest\bin\Debug\SecurityPackageTest.pdb
+D:\Study\Security\SecurityPackage\SecurityPackageTest\bin\Debug\SecurityLibrary.dll
+D:\Study\Security\SecurityPackage\SecurityPackageTest\bin\Debug\SecurityLibrary.pdb
+D:\Study\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.csprojAssemblyReference.cache
+D:\Study\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.csproj.CoreCompileInputs.cache
+D:\Study\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.csproj.CopyComplete
+D:\Study\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.dll
+D:\Study\Security\SecurityPackage\SecurityPackageTest\obj\Debug\SecurityPackageTest.pdb
