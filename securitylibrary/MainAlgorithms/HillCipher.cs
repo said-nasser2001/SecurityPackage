@@ -25,7 +25,15 @@ namespace SecurityLibrary
 
         public List<int> Encrypt(List<int> plainText, List<int> key)
         {
-            throw new NotImplementedException();
+            int m = (int)Math.Sqrt(key.Count);
+
+            Matrix key_m = new Matrix(key, m, m, Matrix.CONVERSION_TYPE.ROW);
+            Matrix plainText_m = new Matrix(plainText, m, Matrix.DIMS.ROW, Matrix.CONVERSION_TYPE.COLUMNAR);
+
+
+            Matrix res = key_m.mul(plainText_m);
+
+            return res.to1D(Matrix.CONVERSION_TYPE.COLUMNAR);
         }
 
 
