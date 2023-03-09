@@ -70,6 +70,80 @@ namespace SecurityLibrary
 
             return res;
         }
+        private int mulVectors(int[,] data1, int targetRow, int[,] data2, int targetCol)
+        {
+            int sum = 0;
+            for (int i = 0; i < data1.GetLength(0); i++)
+            {
+                sum += data1[targetRow, i] * data2[i, targetCol];
+            }
+
+            return sum;
+        }
+
+        public static Matrix T(Matrix m)
+        {
+            Matrix res = new Matrix(m._cols, m._rows);
+
+            for (int i = 0; i < m._rows; i++)
+            {
+                for (int j = 0; j < m._cols; j++)
+                    res.data[j, i] = m.data[i, j];
+            }
+            return res;
+        }   
+
+
+        public int det()
+        {
+            if (!isSquare())
+                throw new InvalidOperationException("Non square matrices doesn't have determinants");
+
+            if (_rows == 2)
+                return det2by2();
+            else if (_rows == 3)
+                return det3by3();
+            else
+                throw new NotImplementedException("Current implementation only supports 2x2 and 3x3 matrices");
+
+        }
+
+        private int det3by3()
+        {
+            int det = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                det += (int)Math.Pow(-1, i) * data[0, i] * subDet(i);
+            }
+            return det;
+        }
+
+        private int subDet(int cancelCol)
+        {
+            switch(cancelCol)
+            {
+                case 0:
+                    return (data[1, 1] * data[2, 2]) - (data[1, 2] * data[2, 1]);
+                case 1:
+                    return (data[1, 0] * data[2, 2]) - (data[1, 2] * data[2, 0]);
+                case 2:
+                    return (data[1, 0] * data[2, 1]) - (data[1, 1] * data[2, 0]);
+                default:
+                    throw new ArgumentException("Invalid column to cancel");
+
+            }
+        }
+
+        private int det2by2()
+        {
+
+            return (data[0, 0] * data[1, 1]) - (data[0, 1] * data[1, 0]); 
+        }
+
+        private bool isSquare()
+        {
+            return _rows == _cols;
+        }
 
         public List<int> to1D(CONVERSION_TYPE type)
         {
@@ -91,20 +165,10 @@ namespace SecurityLibrary
                 }
                 return res;
             }
-
             
         }
 
-        private int mulVectors(int[,] data1, int targetRow, int[,] data2, int targetCol)
-        {
-            int sum = 0;
-            for (int i = 0; i < data1.GetLength(0); i++)
-            {
-                sum += data1[targetRow, i] * data2[i, targetCol];
-            }
-
-            return sum;
-        }
+        
         /*
          The ordinary of filling a matrix, first row the second etc..*/
         private void fillData(List<int> items, CONVERSION_TYPE type)
