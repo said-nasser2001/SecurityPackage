@@ -10,8 +10,8 @@ namespace SecurityLibrary
     public class Matrix
     {
         private int[,] data { get; }
-        private int _rows {get;}
-        private int _cols {get;}
+        private int _rows { get; }
+        private int _cols { get; }
 
         public enum DIMS
         {
@@ -58,7 +58,7 @@ namespace SecurityLibrary
             }
 
             Matrix res = new Matrix(this._rows, m2._cols);
-            
+
 
             for (int row = 0; row < res._rows; row++)
             {
@@ -91,8 +91,57 @@ namespace SecurityLibrary
                     res.data[j, i] = m.data[i, j];
             }
             return res;
-        }   
+        }
 
+        public Matrix inverse(int b = -1)
+        {
+            if (!isSquare())
+                throw new InvalidOperationException("Non square matrices doesn't have inverse");
+
+            if (_rows == 2)
+                return inverse2by2();
+            else if (_rows == 3)
+                return inverse3by3(b);
+            else
+                throw new NotImplementedException("Current implementation only supports 2x2 and 3x3 matrices");
+        }
+
+        private Matrix inverse2by2()
+        {
+            int det = det2by2();
+
+            Matrix res = new Matrix(2, 2);
+
+            res.data[0, 0] = data[1, 1] / det;
+            res.data[1, 1] = data[0, 0] / det;
+
+            res.data[0, 1] = data[0, 1] * -1 / det;
+            res.data[1, 0] = data[1, 0] * -1 / det;
+
+            return res;
+        }
+
+        private Matrix inverse3by3(int b = -1)
+        {
+            int det = det3by3();
+
+            if (det == 0)
+                throw new Exception("Matrix has no inverse");
+
+            Matrix res = new Matrix(_rows, _cols);
+
+            for (int i = 0; i < _rows; i++)
+            {
+                for (int j = 0; j < _cols; j++)
+                {
+                    res.data[i, j] = b == -1? subDet(i, j) / det : b * subDet(i, j) % 26;
+                }
+            }
+
+            return res;
+
+
+        }
 
         public int det()
         {
@@ -113,26 +162,58 @@ namespace SecurityLibrary
             int det = 0;
             for (int i = 0; i < 3; i++)
             {
-                det += (int)Math.Pow(-1, i) * data[0, i] * subDet(i);
+                det += (int)Math.Pow(-1, i) * data[0, i] * subDet(0,i);
             }
             return det;
         }
 
-        private int subDet(int cancelCol)
+        private int subDet(int cancelRow, int cancelCol)
         {
-            switch(cancelCol)
+            switch (cancelRow)
             {
-                case 0:
-                    return (data[1, 1] * data[2, 2]) - (data[1, 2] * data[2, 1]);
-                case 1:
-                    return (data[1, 0] * data[2, 2]) - (data[1, 2] * data[2, 0]);
-                case 2:
-                    return (data[1, 0] * data[2, 1]) - (data[1, 1] * data[2, 0]);
-                default:
-                    throw new ArgumentException("Invalid column to cancel");
+                case 0: 
+                    switch (cancelCol)
+                    {
+                        case 0:
+                            return (data[1, 1] * data[2, 2]) - (data[1, 2] * data[2, 1]);
+                        case 1:
+                            return (data[1, 0] * data[2, 2]) - (data[1, 2] * data[2, 0]);
+                        case 2:
+                            return (data[1, 0] * data[2, 1]) - (data[1, 1] * data[2, 0]);
+                        default:
+                            throw new ArgumentException("Invalid column to cancel");
+                    }
 
+                case 1:
+                    switch (cancelCol)
+                    {
+                        case 0:
+                            return (data[0, 1] * data[2, 2]) - (data[0, 2] * data[2, 1]);
+                        case 1:
+                            return (data[0, 0] * data[2, 2]) - (data[0, 2] * data[2, 0]);
+                        case 2:
+                            return (data[0, 0] * data[2, 1]) - (data[0, 1] * data[2, 0]);
+                        default:
+                            throw new ArgumentException("Invalid column to cancel");
+                    }
+
+                case 2:
+                    switch (cancelCol)
+                    {
+                        case 0:
+                            return (data[0, 1] * data[1, 2]) - (data[0, 2] * data[1, 1]);
+                        case 1:
+                            return (data[0, 0] * data[1, 2]) - (data[0, 2] * data[1, 0]);
+                        case 2:
+                            return (data[0, 0] * data[1, 1]) - (data[0, 1] * data[1, 0]);
+                        default:
+                            throw new ArgumentException("Invalid column to cancel");
+                    }
+                default:
+                    throw new ArgumentException("Invalid target row");
             }
         }
+        
 
         private int det2by2()
         {
