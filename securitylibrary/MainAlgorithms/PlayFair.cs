@@ -258,7 +258,7 @@ namespace SecurityLibrary
 
         private StringBuilder UndoAppend(StringBuilder cipherText)
         {
-            for (int i = 1; i < cipherText.Length - 1; i++)
+            for (int i = 1; i < cipherText.Length - 1; i += 2)
             {
                 if (cipherText[i] == 'x' && cipherText[i - 1] == cipherText[i + 1])
                 {
