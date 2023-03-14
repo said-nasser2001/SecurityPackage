@@ -27,6 +27,13 @@ namespace SecurityLibrary
             ROW, COLUMNAR
         }
 
+        public int this[int i, int j]
+        {
+            get { return data[i,j]; }
+            set { data[i, j] = value; }
+            
+        }
+
         public Matrix(int rows, int cols)
         {
             _rows = rows;
@@ -64,7 +71,7 @@ namespace SecurityLibrary
             {
                 for (int col = 0; col < res._cols; col++)
                 {
-                    res.data[row, col] = mulVectors(this.data, row, m2.data, col) % 26;
+                    res[row, col] = mulVectors(this.data, row, m2.data, col) % 26;
                 }
             }
 
@@ -88,35 +95,36 @@ namespace SecurityLibrary
             for (int i = 0; i < m._rows; i++)
             {
                 for (int j = 0; j < m._cols; j++)
-                    res.data[j, i] = m.data[i, j];
+                    res[j, i] = m[i, j];
             }
             return res;
         }
 
-        public Matrix inverse(int b = -1)
+        public Matrix inverse(int b = -1, int mod=1)
         {
             if (!isSquare())
                 throw new InvalidOperationException("Non square matrices doesn't have inverse");
 
             if (_rows == 2)
-                return inverse2by2();
+                return inverse2by2(b, mod);
             else if (_rows == 3)
                 return inverse3by3(b);
             else
                 throw new NotImplementedException("Current implementation only supports 2x2 and 3x3 matrices");
         }
 
-        private Matrix inverse2by2()
+        private Matrix inverse2by2(int b, int mod)
         {
             int det = det2by2();
 
+
             Matrix res = new Matrix(2, 2);
 
-            res.data[0, 0] = data[1, 1] / det;
-            res.data[1, 1] = data[0, 0] / det;
+            res[0, 0] = (data[1, 1] / det) % mod < 0 ? (data[1, 1] / det) % mod + mod : (data[1, 1] / det) % mod; // TODO: call garbage management
+            res[1, 1] = (data[0, 0] / det) % mod < 0 ? (data[0, 0] / det) % mod + mod : (data[0, 0] / det) % mod; // TODO: call garbage management
 
-            res.data[0, 1] = data[0, 1] * -1 / det;
-            res.data[1, 0] = data[1, 0] * -1 / det;
+            res[0, 1] = (data[0, 1] * -1 / det) % mod < 0 ? (data[0, 1] * -1 / det) % mod + mod : (data[0, 1] * -1 / det) % mod; // TODO: call garbage management
+            res[1, 0] = (data[1, 0] * -1 / det) % mod < 0 ? (data[1, 0] * -1 / det) % mod + mod : (data[1, 0] * -1 / det) % mod;// TODO: call garbage management
 
             return res;
         }
@@ -134,7 +142,16 @@ namespace SecurityLibrary
             {
                 for (int j = 0; j < _cols; j++)
                 {
-                    res.data[i, j] = b == -1? subDet(i, j) / det : b * subDet(i, j) % 26;
+                    if (b == -1) // normal inverse
+                    {
+                        res.data[i, j] = subDet(i, j) / det;
+                    }
+                    else // hill cipher
+                    {
+                        int result = (b * (int)Math.Pow(-1, i + j) * subDet(i, j)) % 26;
+                        res.data[i, j] = result < 0 ? result + 26 : result;
+                    }
+                    
                 }
             }
 
@@ -225,6 +242,14 @@ namespace SecurityLibrary
         {
             return _rows == _cols;
         }
+        
+        public int[] getShape()
+        {
+            int[] shape = new int[2];
+            shape[0] = _rows;
+            shape[1] = _cols;
+            return shape;
+        }
 
         public List<int> to1D(CONVERSION_TYPE type)
         {
@@ -311,6 +336,7 @@ namespace SecurityLibrary
         {
             return m1._cols == m2._rows;
         }
+
 
 
     }
