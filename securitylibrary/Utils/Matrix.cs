@@ -34,6 +34,26 @@ namespace SecurityLibrary
             
         }
 
+        public static bool operator ==(Matrix a, Matrix b)
+        {
+
+            if (a.getShape()[0] != b.getShape()[0] || a.getShape()[1] != b.getShape()[1])
+                return false;
+
+            for(int i = 0; i < a.getShape()[0]; i++)
+            {
+                for (int j = 0; j < a.getShape()[1]; j++)
+                    if (a[i, j] != b[i, j]) return false;
+            }
+            return true;
+        }
+
+        public static bool operator !=(Matrix a, Matrix b)
+        {
+            return !(a == b);
+        }
+
+
         public Matrix(int rows, int cols)
         {
             _rows = rows;

@@ -18,29 +18,35 @@ namespace SecurityLibrary
             Matrix cipher_m = new Matrix(cipherText, m, m, Matrix.CONVERSION_TYPE.COLUMNAR);
 
 
-            int det = plain_m.det() %  26;
-            int b = bruteB(det);
-
-            Matrix key = cipher_m.mul(hill_2x2_inverse(plain_m));
+            Matrix key = brute2x2Key(plain_m, cipher_m);
             return key.to1D(Matrix.CONVERSION_TYPE.ROW);
         }
 
-        private Matrix hill_2x2_inverse(Matrix m)
+        
+        private Matrix brute2x2Key(Matrix plain, Matrix cipher)
         {
-            int det = m.det() % 26;
-            int b = bruteB(det);
-            int mod = 26;
+            Matrix key = new Matrix(2, 2);
+            for (int i1 = 0; i1 < 26; i1++)
+            {
+                for (int i2 = 0; i2 < 26; i2++)
+                {
+                    for (int i3 = 0; i3 < 26; i3++)
+                    {
+                        for (int i4 = 0; i4 < 26; i4++)
+                        {
+                            key[0, 0] = i1;
+                            key[0, 1] = i2;
+                            key[1, 0] = i3;
+                            key[1, 1] = i4;
 
-            Matrix res = new Matrix(2, 2);
+                            if (Encrypt(plain, key) == cipher)
+                                return key;
+                        }
+                    }
+                }
+            }
 
-
-            res[0, 0] = (b * m[1, 1]) % mod < 0 ? (b * m[1, 1] ) % mod + mod : (m[1, 1] * b) % mod; // TODO: call garbage management
-            res[1, 1] = (m[0, 0] * b) % mod < 0 ? (m[0, 0] * b) % mod + mod : (m[0, 0] * b) % mod; // TODO: call garbage management
-
-            res[0, 1] = (m[0, 1] * -1 * b) % mod < 0 ? (m[0, 1] * -1 * b) % mod + mod : (m[0, 1] * -1 * b) % mod; // TODO: call garbage management
-            res[1, 0] = (m[1, 0] * -1 * b) % mod < 0 ? (m[1, 0] * -1 * b) % mod + mod : (m[1, 0] * -1 * b) % mod;// TODO: call garbage management
-
-            return res;
+            throw new SecurityLibrary.InvalidAnlysisException();
         }
 
 
@@ -79,10 +85,25 @@ namespace SecurityLibrary
             return res.to1D(Matrix.CONVERSION_TYPE.COLUMNAR);
         }
 
+        public Matrix Encrypt(Matrix plainText, Matrix key)
+        {
+            Matrix res = key.mul(plainText);
+            return res;
+        }
+
 
         public List<int> Analyse3By3Key(List<int> plainText, List<int> cipherText)
         {
-            throw new NotImplementedException();
+            int m = 3;
+            Matrix plain_m = new Matrix(plainText, m, m, Matrix.CONVERSION_TYPE.ROW);
+            Matrix cipher_m = new Matrix(cipherText, m, m, Matrix.CONVERSION_TYPE.COLUMNAR);
+
+
+            int det = plain_m.det() % 26;
+            int b = bruteB(det);
+
+            Matrix key = cipher_m.mul(plain_m.inverse(b, 26));
+            return key.to1D(Matrix.CONVERSION_TYPE.ROW);
         }
 
 
