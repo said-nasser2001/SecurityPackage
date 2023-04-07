@@ -53,12 +53,32 @@ namespace SecurityLibrary.AES
 
         public override string Encrypt(string plainText, string key)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            string[,] m = convertToMatrix(plainText);
+            string[,] sb = subBytes(m);
+            return "";
         }
 
         private string[,] subBytes(string[,] state)
         {
-            throw new NotImplementedException();
+            string[,] resultMatrix = new string[4, 4];
+            string temp = "";
+            int sBoxRowIndex, sBoxColIndex;
+            string hexNumbers = "0123456789abcdef";
+
+            for (int row = 0; row < 4; row++)
+            {
+                for(int col = 0; col < 4; col++)
+                {
+                    temp = state[row, col];
+                    sBoxRowIndex = hexNumbers.IndexOf(temp[0]);
+                    sBoxColIndex = hexNumbers.IndexOf(temp[1]);
+                    resultMatrix[row, col] = SBox[sBoxRowIndex, sBoxColIndex];
+                }
+            }
+
+
+            return resultMatrix;
         }
 
         private string[,] shiftRows(string[,] state)
@@ -103,12 +123,59 @@ namespace SecurityLibrary.AES
 
         private string[,] convertToMatrix(string text)
         {
-            throw new NotImplementedException();
+            string[,] matrix = new string[4, 4];
+            int row = 0, col = 0;
+
+            for (int char_no = 2; char_no < text.Length; char_no+=2)
+            {
+                if(col == 4)
+                {
+                    col = 0;
+                    row++;
+                }
+
+                if(row == 4)
+                {
+                    break;
+                }
+
+                if (char_no == text.Length - 1)
+                {
+                    matrix[row, col] = "" + text[char_no];
+                }
+                else
+                {
+                    matrix[row, col] = "" + text[char_no] + text[char_no + 1];
+                }
+
+                col++;
+                    
+            }
+
+            if (matrix[3, 3].Length == 1)
+            {
+                matrix[3, 3] = "0" + text[text.Length - 1];
+            }
+
+
+
+            return matrix;
         }
 
         private string convertToString(string[,] matrix)
         {
-            throw new NotImplementedException();
+            string text = "";
+
+            for (int row = 0; row < 4; row++)
+            {
+                for (int col = 0; col < 4; col++)
+                {
+                    text += matrix[row, col];
+                }
+            }
+
+
+            return text;
         }
 
         
