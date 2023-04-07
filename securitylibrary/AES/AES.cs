@@ -80,7 +80,22 @@ namespace SecurityLibrary.AES
 
         private string[,] shiftRows(string[,] state)
         {
-            throw new NotImplementedException();
+            string[,] resultMatrix = new string[4,4];
+            int rotateBy;
+
+            for (int row = 0; row < 4; row++)
+            {
+                rotateBy = row;
+
+               for (int col = 0; col < 4; col++)
+               {
+                 resultMatrix[row, col] = state[row, (col + rotateBy) % 4];
+               }    
+                
+            }
+
+
+            return resultMatrix;
         }
 
         private string[,] mixColumns(string[,] state)
