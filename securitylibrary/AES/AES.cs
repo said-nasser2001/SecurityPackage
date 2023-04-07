@@ -53,10 +53,7 @@ namespace SecurityLibrary.AES
 
         public override string Encrypt(string plainText, string key)
         {
-            //throw new NotImplementedException();
-            string[,] m = convertToMatrix(plainText);
-            string[,] sb = subBytes(m);
-            return "";
+            throw new NotImplementedException();
         }
 
         private string[,] subBytes(string[,] state)
