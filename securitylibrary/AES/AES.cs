@@ -228,8 +228,8 @@ namespace SecurityLibrary.AES
                 }
             }
 
-
             return resultMatrix;
+        }
 
 
             private string[,] invShiftRows(string[,] state)
