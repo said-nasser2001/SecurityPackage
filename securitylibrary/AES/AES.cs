@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -200,10 +201,40 @@ namespace SecurityLibrary.AES
         }
 
 
-        private string[,] addRoundKey(string[,] state, string[,] roundKey)
+        // public because it won't show in tests otherwise.
+        // TODO: make it private when work is done.
+
+        public string[,] addRoundKey(string[,] state, string[,] roundKey)
         {
-            throw new NotImplementedException();
+            string[,] newState = new string[4, 4];
+
+            // perform XOR for every column
+
+            for (int i = 0; i < 4; i++)
+            {
+                string stateColumn = "", keyColumn = "";
+
+                for (int j = 0; j < 4; j++)
+                {
+                    stateColumn += state[j, i];
+                    keyColumn += roundKey[j, i];
+                }
+
+                string newColumn = applyXOR(stateColumn, keyColumn);
+                newColumn = newColumn.ToLower();
+
+
+                for (int j = 0; j < 4; j++)
+                {
+                    newState[j, i] = newColumn.Substring(j * 2, 2);
+                }
+            }
+
+            return newState;
         }
+
+
+
 
         private string[,] keySchedule(string[,] currentKey, int round_no)
         {
@@ -242,10 +273,32 @@ namespace SecurityLibrary.AES
             throw new NotImplementedException();
         }
 
-        private string applyXOR(string s1, string s2)
+        /// <summary>
+        /// returns XOR of 2 hex strings, strings should be exactly 32 bits, in the format "aabbccdd"
+        /// </summary>
+        /// <param name="s1"></param>
+        /// <param name="s2"></param>
+        /// <returns></returns>
+        /// 
+
+        // public because it won't show in tests otherwise.
+        // TODO: make it private when work is done.
+        public string applyXOR(string s1, string s2)
         {
-            throw new NotImplementedException();
+            if (s1.Length != 8 || s2.Length != 8)
+            {
+                throw new ArgumentException("Strings should be exactly 8 characters long (32 bits).",
+                    nameof(s1) + " or " + nameof(s2));
+            }
+
+            uint a = uint.Parse(s1, NumberStyles.HexNumber);
+            uint b = uint.Parse(s2, NumberStyles.HexNumber);
+
+            uint result = a ^ b;
+
+            return result.ToString("X8");
         }
+
 
         private string[,] convertToMatrix(string text)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SecurityLibrary.AES;
 
@@ -87,5 +88,64 @@ namespace SecurityPackageTest
             string plain = algorithm.Decrypt(newCipher, newKey);
             Assert.IsTrue(plain.Equals(newPlain, StringComparison.InvariantCultureIgnoreCase));
         }
+
+        [TestMethod]
+        public void TestApplyXOR()
+        {
+            AES algorithm = new AES();
+
+            string s1 = "23a5c8d0";
+            string s2 = "983e3509";
+
+            // Expected output
+            string expected = "bb9bfdd9";
+
+            // Act
+            var result = algorithm.applyXOR(s1, s2);
+
+            // Assert
+            Assert.IsTrue(result.Equals(expected, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+
+        [TestMethod]
+        public void TestAddRoundKey()
+        {
+            // Arrange
+            string[,] state = new string[4, 4]
+            {
+                {"04", "e0", "48", "28"},
+                {"66", "cb", "f8", "06"},
+                {"81", "19", "d3", "26"},
+                {"e5", "9a", "7a", "4c"}
+            };
+
+            string[,] roundKey = new string[4, 4]
+            {
+                {"a0", "88", "23", "2a"},
+                {"fa", "54", "a3", "6c"},
+                {"fe", "2c", "39", "76"},
+                {"17", "b1", "39", "05"}
+            };
+
+            string[,] expectedNewState = new string[4, 4]
+            {
+                {"a4", "68", "6b", "02"},
+                {"9c", "9f", "5b", "6a"},
+                {"7f", "35", "ea", "50"},
+                {"f2", "2b", "43", "49"}
+            };
+
+            AES algorithm = new AES();
+
+            // Act
+            string[,] actualNewState = algorithm.addRoundKey(state, roundKey);
+
+            // Assert
+            CollectionAssert.AreEqual(expectedNewState, actualNewState);
+        }
+
+
+
     }
 }
