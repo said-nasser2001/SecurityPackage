@@ -113,16 +113,19 @@ namespace SecurityLibrary.AES
 
         private string[,] subBytes(string[,] state)
         {
-            string[,] resultMatrix = new string[4, 4];
+            int rows_length = state.GetLength(0), cols_length = state.GetLength(1);
+            string[,] resultMatrix = new string[rows_length, cols_length];
             string temp = "";
             int sBoxRowIndex, sBoxColIndex;
             string hexNumbers = "0123456789abcdef";
 
-            for (int row = 0; row < 4; row++)
+
+            for (int row = 0; row < rows_length; row++)
             {
-                for(int col = 0; col < 4; col++)
+                for(int col = 0; col < cols_length; col++)
                 {
                     temp = state[row, col];
+                    temp = temp.ToLower();
                     sBoxRowIndex = hexNumbers.IndexOf(temp[0]);
                     sBoxColIndex = hexNumbers.IndexOf(temp[1]);
                     resultMatrix[row, col] = SBox[sBoxRowIndex, sBoxColIndex];
@@ -255,6 +258,7 @@ namespace SecurityLibrary.AES
                 for (int col = 0; col < 4; col++)
                 {
                     temp = state[row, col];
+                    temp = temp.ToLower();
                     sBoxRowIndex = hexNumbers.IndexOf(temp[0]);
                     sBoxColIndex = hexNumbers.IndexOf(temp[1]);
                     resultMatrix[row, col] = InvSBox[sBoxRowIndex, sBoxColIndex];
@@ -314,13 +318,13 @@ namespace SecurityLibrary.AES
 
             for (int char_no = startingIndex; char_no < text.Length; char_no+=2)
             {
-                if(col == 4)
+                if(row == 4)
                 {
-                    col = 0;
-                    row++;
+                    row = 0;
+                    col++;
                 }
 
-                if(row == 4)
+                if(col == 4)
                 {
                     break;
                 }
@@ -334,7 +338,7 @@ namespace SecurityLibrary.AES
                     matrix[row, col] = "" + text[char_no] + text[char_no + 1];
                 }
 
-                col++;
+                row++;
                     
             }
 

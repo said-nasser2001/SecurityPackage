@@ -153,10 +153,10 @@ namespace SecurityPackageTest
             AES algorithm = new AES();
             string input = "5468617473206D79204B756E67204675";
             string[,] expectedOutput = new string[,] {
-                        { "54", "68", "61", "74" },
-                        { "73", "20", "6D", "79" },
-                        { "20", "4B", "75", "6E" },
-                        { "67", "20", "46", "75" }
+                        { "54", "73", "20", "67" },
+                        { "68", "20", "4B", "20" },
+                        { "61", "6D", "75", "46" },
+                        { "74", "79", "6E", "75" }
             };
 
             string[,] output = algorithm.convertToMatrix(input);
