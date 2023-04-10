@@ -305,9 +305,14 @@ namespace SecurityLibrary.AES
         public string[,] convertToMatrix(string text)
         {
             string[,] matrix = new string[4, 4];
-            int row = 0, col = 0;
+            int row = 0, col = 0, startingIndex;
 
-            for (int char_no = 2; char_no < text.Length; char_no+=2)
+            if (text[0] == '0' && text[1] == 'x')
+                startingIndex = 2;
+            else
+                startingIndex = 0;
+
+            for (int char_no = startingIndex; char_no < text.Length; char_no+=2)
             {
                 if(col == 4)
                 {
