@@ -12,11 +12,9 @@ namespace SecurityLibrary.AES
     /// </summary>
     public class AES : CryptographicTechnique
     {
-        #region givenMatrices
-        public string[,] RC = new string[4, 10] { { "01" , "02" , "04" , "08" , "10" , "20" , "40" , "80" , "1b" , "36" },
-                                                  { "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" },
-                                                  { "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" },
-                                                  { "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" , "00" } };
+        #region constants
+
+        public string[] RC = new string[10] { "00000001", "00000002", "00000004", "00000008", "00000010", "00000020", "00000040", "00000080", "0000001b", "00000036" };
 
         public string[,] SBox = new string[16, 16] { { "63", "7C", "77", "7B", "F2", "6B", "6F", "C5", "30", "01", "67", "2B", "FE", "D7", "AB", "76" },
                                                      { "CA", "82", "C9", "7D", "FA", "59", "47", "F0", "AD", "D4", "A2", "AF", "9C", "A4", "72", "C0" },
@@ -51,16 +49,6 @@ namespace SecurityLibrary.AES
                                                         {"70",  "3e",  "b5",  "66",  "48",  "03",  "f6",  "0e",  "61",  "35",  "57",  "b9",  "86",  "c1",  "1d"  ,"9e"},
                                                         {"e1",  "f8",  "98",  "11",  "69",  "d9",  "8e",  "94",  "9b",  "1e",  "87",  "e9",  "ce",  "55",  "28"  ,"df"},
                                                         {"8c",  "a1",  "89",  "0d",  "bf",  "e6",  "42",  "68",  "41",  "99",  "2d",  "0f",  "b0",  "54",  "bb",  "16" } };
-
-
-
-
-
-
-
-
-
-
 
 
         public string[,] invMixColumnsMat = new string[4,4]  { { "0E", "0B", "0D", "09" },
@@ -106,7 +94,12 @@ namespace SecurityLibrary.AES
                                                            { 0x01, 0x02,  0x03, 0x01 },
                                                            { 0x01, 0x01, 0x02,  0x03 },
                                                            {  0x03, 0x01, 0x01, 0x02 } };
+
+
         #endregion
+
+
+        List<string[,]> Keys;
 
         public override string Decrypt(string cipherText, string key)
         {
@@ -139,6 +132,9 @@ namespace SecurityLibrary.AES
 
             return resultMatrix;
         }
+
+
+
 
         private string[,] shiftRows(string[,] state)
         {
@@ -236,10 +232,16 @@ namespace SecurityLibrary.AES
 
 
 
-        private string[,] keySchedule(string[,] currentKey, int round_no)
+        private void generateKeys(string[,] masterKey)
         {
-            throw new NotImplementedException();
+            Keys = new List<string[,]>(10);
+
         }
+
+        //private string[] RotWord(string word[])
+        //{
+
+        //}
 
         private string[,] invSubBytes(string[,] state)
         {
@@ -300,7 +302,7 @@ namespace SecurityLibrary.AES
         }
 
 
-        private string[,] convertToMatrix(string text)
+        public string[,] convertToMatrix(string text)
         {
             string[,] matrix = new string[4, 4];
             int row = 0, col = 0;
@@ -335,8 +337,6 @@ namespace SecurityLibrary.AES
             {
                 matrix[3, 3] = "0" + text[text.Length - 1];
             }
-
-
 
             return matrix;
         }
