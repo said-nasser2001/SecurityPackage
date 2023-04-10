@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SecurityLibrary.AES;
@@ -170,6 +171,58 @@ namespace SecurityPackageTest
             }
         }
 
+        [TestMethod]
+        public void TestSubBytes()
+        {
+            AES algorithm = new AES();
+
+            // Arrange
+            string word = "a5f5ec12";
+            string expectedOutput = "06e6cec9";
+
+            // Act
+            string output = algorithm.subBytes(word).ToLower();
+
+            // Assert
+            Assert.AreEqual(expectedOutput, output);
+        }
+
+        [TestMethod]
+        public void TestGenerateRoundKeys1Round()
+        {
+            AES algorithm = new AES();
+
+            // Arrange
+            string mainKey = "2b7e151628aed2a6abf7158809cf4f3c";
+            string[,] expectedOutput =  { { "a0", "88", "23", "2a" },
+                                          { "fa", "54", "a3", "6c",},
+                                          { "fe", "2c", "39", "76",},
+                                          { "17", "b1", "39", "05" }};
+                                        
+                                        
+
+
+            // Act
+            string[,] output = algorithm.generateRoundKeys(mainKey)[1];
+
+            // Assert
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    Assert.AreEqual(expectedOutput[i, j], output[i, j].ToLower());
+                }
+            }
+
+        }
+
+
+
+
+
+
 
     }
+
+
 }

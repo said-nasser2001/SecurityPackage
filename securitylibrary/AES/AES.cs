@@ -14,7 +14,7 @@ namespace SecurityLibrary.AES
     {
         #region constants
 
-        public string[] RC = new string[10] { "00000001", "00000002", "00000004", "00000008", "00000010", "00000020", "00000040", "00000080", "0000001b", "00000036" };
+        public string[] RC = new string[10] { "01000000", "02000000", "04000000", "08000000", "01000000", "20000000", "40000000", "80000000", "1b000000", "36000000" };
 
         public string[,] SBox = new string[16, 16] { { "63", "7C", "77", "7B", "F2", "6B", "6F", "C5", "30", "01", "67", "2B", "FE", "D7", "AB", "76" },
                                                      { "CA", "82", "C9", "7D", "FA", "59", "47", "F0", "AD", "D4", "A2", "AF", "9C", "A4", "72", "C0" },
@@ -138,8 +138,27 @@ namespace SecurityLibrary.AES
 
 
 
+        public string subBytes(string word)
+        {
+            word = word.ToLower();
+            string temp = "";
+            int sBoxRowIndex, sBoxColIndex;
+            string hexNumbers = "0123456789abcdef";
+            string newWord = "";
 
-        private string[,] shiftRows(string[,] state)
+            for (int row = 0; row < 4; row++)
+            {
+                temp = word.Substring(row * 2, 2);
+                sBoxRowIndex = hexNumbers.IndexOf(temp[0]);
+                sBoxColIndex = hexNumbers.IndexOf(temp[1]);
+                newWord += SBox[sBoxRowIndex, sBoxColIndex];
+            }
+            return newWord;
+        }
+
+
+
+            private string[,] shiftRows(string[,] state)
         {
             string[,] resultMatrix = new string[4,4];
             int rotateBy;
@@ -234,17 +253,76 @@ namespace SecurityLibrary.AES
 
 
 
-
-        private void generateKeys(string[,] masterKey)
+        // TODO: remove public and make it void after completion.
+        public List<string[,]> generateRoundKeys(string masterKey)
         {
-            Keys = new List<string[,]>(10);
 
+            string[,] masterKeyMatrix = convertToMatrix(masterKey);
+
+            Keys = new List<string[,]>(10)
+            {
+                masterKeyMatrix
+            };
+
+            string[,] previousKey;
+            int w = 4;
+
+            // for every round key
+            for (int i = 1; i < 10; i++)
+            {
+                previousKey = Keys[i - 1];
+                string currentKey = "";
+
+                // for every word in current round key
+                for (int j = 0; j < 4; j++, w++)
+                {
+                    string new_word = "";
+
+                    // first word in round key
+                    if (w % 4 == 0)
+                    {
+                        // Wi-1
+                        string previous_word = "";
+                        for (int k = 0; k < 4; k++) { previous_word += previousKey[k, 3]; }
+
+                        // Wi-4
+                        string previous_4_word = "";
+                        for (int k = 0; k < 4; k++) { previous_4_word += previousKey[k, 0]; }
+
+                        // Rcon(w)
+                        string round_constant = RC[i - 1];
+
+                        string subbytes_rotated_previous_word = subBytes(RotWord(previous_word));
+
+                        // Subbyte(Rot(Wi-1)) + Wi4 + Rcon(w)
+                        new_word = applyXOR(applyXOR(subbytes_rotated_previous_word, previous_4_word), round_constant);
+                    }
+                    else
+                    {
+                        // Wi-1
+                        string previous_word = "";
+                        for (int k = currentKey.Length - 8; k < currentKey.Length; k++) { previous_word += currentKey[k]; }
+
+                        // Wi-4
+                        string previous_4_word = "";
+                        for (int k = 0; k < 4; k++) { previous_4_word += previousKey[k, j]; }
+
+                        new_word = applyXOR(previous_word, previous_4_word);
+                    }
+
+                    currentKey += new_word;
+
+                }
+                string[,] currentKeyMatrix = convertToMatrix(currentKey);
+                Keys.Add(currentKeyMatrix);
+            }
+            return Keys;
         }
 
-        //private string[] RotWord(string word[])
-        //{
-
-        //}
+        private string RotWord(string word)
+        {
+            return word.Substring(2) + word.Substring(0, 2);
+        }
 
         private string[,] invSubBytes(string[,] state)
         {
@@ -269,7 +347,7 @@ namespace SecurityLibrary.AES
         }
 
 
-            private string[,] invShiftRows(string[,] state)
+        private string[,] invShiftRows(string[,] state)
         {
             throw new NotImplementedException();
         }
@@ -294,7 +372,7 @@ namespace SecurityLibrary.AES
             if (s1.Length != 8 || s2.Length != 8)
             {
                 throw new ArgumentException("Strings should be exactly 8 characters long (32 bits).",
-                    nameof(s1) + " or " + nameof(s2));
+                    nameof(s1) + " " + s1 + " or " + nameof(s2) + " " + s2);
             }
 
             uint a = uint.Parse(s1, NumberStyles.HexNumber);
