@@ -432,9 +432,9 @@ namespace SecurityLibrary.AES
         {
             string text = "";
 
-            for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 4; col++)
             {
-                for (int col = 0; col < 4; col++)
+                for (int row = 0; row < 4; row++)
                 {
                     text += matrix[row, col];
                 }
