@@ -14,7 +14,7 @@ namespace SecurityLibrary.AES
     {
         #region constants
 
-        public string[] RC = new string[10] { "01000000", "02000000", "04000000", "08000000", "01000000", "20000000", "40000000", "80000000", "1b000000", "36000000" };
+        public string[] RC = new string[10] { "01000000", "02000000", "04000000", "08000000", "10000000", "20000000", "40000000", "80000000", "1b000000", "36000000" };
 
         public string[,] SBox = new string[16, 16] { { "63", "7C", "77", "7B", "F2", "6B", "6F", "C5", "30", "01", "67", "2B", "FE", "D7", "AB", "76" },
                                                      { "CA", "82", "C9", "7D", "FA", "59", "47", "F0", "AD", "D4", "A2", "AF", "9C", "A4", "72", "C0" },
@@ -98,7 +98,6 @@ namespace SecurityLibrary.AES
 
         #endregion
 
-
         List<string[,]> Keys;
 
         public override string Decrypt(string cipherText, string key)
@@ -108,7 +107,36 @@ namespace SecurityLibrary.AES
 
         public override string Encrypt(string plainText, string key)
         {
-            throw new NotImplementedException();
+            Keys = generateRoundKeys(key);
+
+            // Initial Round
+            string[,] stateMatrix = convertToMatrix(plainText);
+            string[,] KeyMatrix = convertToMatrix(key);
+
+            stateMatrix = addRoundKey(stateMatrix, KeyMatrix);
+
+            int NumberOfRounds = 10;
+
+            for (int round = 1; round <= NumberOfRounds; round++)
+            {
+                stateMatrix = AESRound(stateMatrix, Keys[round], round == NumberOfRounds);
+            }
+
+            string Output = convertToString(stateMatrix);
+            return Output;
+        }
+
+        private string[,] AESRound(string[,] State, string[,] RoundKey, bool final)
+        {
+            State = subBytes(State);
+            State = shiftRows(State);
+
+            if (!final)
+                State = mixColumns(State);
+
+            string[,] Output = addRoundKey(State, RoundKey);
+
+            return Output;
         }
 
         private string[,] subBytes(string[,] state)
@@ -136,8 +164,6 @@ namespace SecurityLibrary.AES
             return resultMatrix;
         }
 
-
-
         public string subBytes(string word)
         {
             word = word.ToLower();
@@ -156,9 +182,7 @@ namespace SecurityLibrary.AES
             return newWord;
         }
 
-
-
-            private string[,] shiftRows(string[,] state)
+        private string[,] shiftRows(string[,] state)
         {
             string[,] resultMatrix = new string[4,4];
             int rotateBy;
@@ -190,6 +214,7 @@ namespace SecurityLibrary.AES
             }
             return res;
         }
+
         private string VectorGaloisFieldMul(int[,] data1, int targetRow, string[,] state, int targetCol)
         {
 
@@ -217,7 +242,6 @@ namespace SecurityLibrary.AES
 
             return sum.ToString("X2");
         }
-
 
         // public because it won't show in tests otherwise.
         // TODO: make it private when work is done.
@@ -251,15 +275,13 @@ namespace SecurityLibrary.AES
             return newState;
         }
 
-
-
         // TODO: remove public and make it void after completion.
         public List<string[,]> generateRoundKeys(string masterKey)
         {
 
             string[,] masterKeyMatrix = convertToMatrix(masterKey);
 
-            Keys = new List<string[,]>(10)
+            Keys = new List<string[,]>(11)
             {
                 masterKeyMatrix
             };
@@ -268,7 +290,7 @@ namespace SecurityLibrary.AES
             int w = 4;
 
             // for every round key
-            for (int i = 1; i < 10; i++)
+            for (int i = 1; i <= 10; i++)
             {
                 previousKey = Keys[i - 1];
                 string currentKey = "";
@@ -346,10 +368,24 @@ namespace SecurityLibrary.AES
             return resultMatrix;
         }
 
-
         private string[,] invShiftRows(string[,] state)
         {
-            throw new NotImplementedException();
+            string[,] resultMatrix = new string[4, 4];
+            int rotateBy;
+
+            for (int row = 0; row < 4; row++)
+            {
+                rotateBy = row;
+
+                for (int col = 0; col < 4; col++)
+                {
+                    resultMatrix[row, col] = state[row, (col + rotateBy) % 4];
+                }
+
+            }
+
+
+            return resultMatrix;
         }
 
         private string[,] invMixColumns(string[,] state)
@@ -382,7 +418,6 @@ namespace SecurityLibrary.AES
 
             return result.ToString("X8");
         }
-
 
         public string[,] convertToMatrix(string text)
         {
@@ -432,16 +467,16 @@ namespace SecurityLibrary.AES
         {
             string text = "";
 
-            for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 4; col++)
             {
-                for (int col = 0; col < 4; col++)
+                for (int row = 0; row < 4; row++)
                 {
                     text += matrix[row, col];
                 }
             }
 
 
-            return text;
+            return "0x"+text;
         }
 
         
