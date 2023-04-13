@@ -173,7 +173,25 @@ namespace SecurityLibrary.AES
 
         public override string Decrypt(string cipherText, string key)
         {
-            throw new NotImplementedException();
+            Keys = generateRoundKeys(key);
+
+            string[,] stateMatrix = convertToMatrix(cipherText);
+
+            stateMatrix = addRoundKey(stateMatrix, Keys[10]);
+
+            int NumberOfRounds = 10;
+
+            for (int round = NumberOfRounds-1; round >= 0; round--)
+            {
+                stateMatrix = invShiftRows(stateMatrix);
+                stateMatrix = invSubBytes(stateMatrix);
+                stateMatrix = addRoundKey(stateMatrix, Keys[round]);
+                if (round != 1)
+                    stateMatrix = invMixColumns(stateMatrix);
+            }
+
+            string Output = convertToString(stateMatrix);
+            return Output;
         }
 
         public override string Encrypt(string plainText, string key)
@@ -191,6 +209,7 @@ namespace SecurityLibrary.AES
             for (int round = 1; round <= NumberOfRounds; round++)
             {
                 stateMatrix = AESRound(stateMatrix, Keys[round], round == NumberOfRounds);
+
             }
 
             string Output = convertToString(stateMatrix);
@@ -446,7 +465,7 @@ namespace SecurityLibrary.AES
 
             for (int row = 0; row < 4; row++)
             {
-                rotateBy = row;
+                rotateBy = 4 - row;
 
                 for (int col = 0; col < 4; col++)
                 {
@@ -454,7 +473,6 @@ namespace SecurityLibrary.AES
                 }
 
             }
-
 
             return resultMatrix;
         }
