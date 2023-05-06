@@ -11,6 +11,8 @@ namespace SecurityLibrary.MD5
     {
         private string message;
         private string A, B, C, D;
+        uint[] DWord = new uint[64];
+        
 
         private static uint F(uint b, uint c, uint d) => (b & c) | (~b & d);
         private static uint G(uint b, uint c, uint d) => (b & d) | (c & ~d);
@@ -34,7 +36,9 @@ namespace SecurityLibrary.MD5
 
 
             initMDBuffers();
- 
+            generateDWord();
+
+
             // Block processing
                 // Single Block
                     // Single step x 16
@@ -80,6 +84,22 @@ namespace SecurityLibrary.MD5
                 string.Join("", "98".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0')));
 
             D = string.Join("", "76543210".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0')));
+        }
+
+        private void generateDWord()
+        {
+            string temp;
+
+            for (int i = 0; i < message.Length / 32; i++)
+            {
+                temp = "";
+                for (int j = i * 32; j < ((i+1) * 32) && j < message.Length; j++)  
+                {
+                    temp += message[j].ToString();
+                }
+              
+                DWord[i] = Convert.ToUInt32(temp, 2);
+            }
         }
 
         private int computeDWordIndex(int k, int round)
