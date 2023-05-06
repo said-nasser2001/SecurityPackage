@@ -12,7 +12,7 @@ namespace SecurityLibrary.MD5
         private string message;
         private string A, B, C, D;
         uint[] DWord = new uint[64];
-        
+        uint[] T = new uint[64];
 
         private static uint F(uint b, uint c, uint d) => (b & c) | (~b & d);
         private static uint G(uint b, uint c, uint d) => (b & d) | (c & ~d);
@@ -37,7 +37,7 @@ namespace SecurityLibrary.MD5
 
             initMDBuffers();
             generateDWord();
-
+            generate_T_table();
 
             // Block processing
                 // Single Block
@@ -84,6 +84,16 @@ namespace SecurityLibrary.MD5
                 string.Join("", "98".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0')));
 
             D = string.Join("", "76543210".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0')));
+        }
+
+        private void generate_T_table()
+        {
+            for (int i = 0; i < message.Length / 32; i++) 
+            {
+
+                T[i] =  (uint) ((1L << 32) * DWord[i] * Math.Abs(Math.Sin(i + 1)));
+                string x = T[i].ToString("X");
+            }
         }
 
         private void generateDWord()
