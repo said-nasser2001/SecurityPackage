@@ -12,6 +12,19 @@ namespace SecurityLibrary.MD5
         private string message;
         private string A, B, C, D;
 
+        private static uint F(uint b, uint c, uint d) => (b & c) | (~b & d);
+        private static uint G(uint b, uint c, uint d) => (b & d) | (c & ~d);
+        private static uint H(uint b, uint c, uint d) => b ^ c ^ d;
+        private static uint I(uint b, uint c, uint d) => c ^  (b | ~d);
+
+        private Dictionary<int, Func<uint, uint, uint, uint>> logical_functions = new Dictionary<int, Func<uint, uint, uint, uint>>
+        {
+            {1, F},
+            {2, G},
+            {3, H},
+            {4, I}
+        };
+
         public string GetHash(string text)
         {
             message = convertToBinary(text);
@@ -21,7 +34,7 @@ namespace SecurityLibrary.MD5
 
 
             initMDBuffers();
-
+ 
             // Block processing
                 // Single Block
                     // Single step x 16
@@ -67,6 +80,32 @@ namespace SecurityLibrary.MD5
                 string.Join("", "98".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0')));
 
             D = string.Join("", "76543210".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0')));
+        }
+
+        private int computeDWordIndex(int k, int round)
+        {
+            int index = -1;
+            switch (round)
+            {
+                case 1:
+                    index = k;
+                    break;
+
+                case 2:
+                    index = (1 + 5 * k) % 16;
+                    break;
+                
+                case 3:
+                    index = (5 + 3 * k) % 16;
+                    break;
+                
+                case 4:
+                    index = (7 * k) % 16;
+                    break;
+
+            }
+
+            return index;
         }
     }
 }
