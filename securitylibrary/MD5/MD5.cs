@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 
 namespace SecurityLibrary.MD5
@@ -11,17 +10,17 @@ namespace SecurityLibrary.MD5
     {
 
         private string message;
-        private uint A, B, C, D;
-        uint[] DWord = new uint[64];
-        uint[] T = new uint[64];
+        private uint a = 0x67452301;  uint b = 0xEFCDAB89;  uint c = 0x98BADCFE;  uint d = 0x10325476;
+        private uint[] DWord = new uint[64];
+        private uint[] T = new uint[64];
 
-        int[] shiftValues = new int[64] {
+        private int[] shiftValues = new int[64] {
             7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
             5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
             4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,
             6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21
         };
-        private static readonly uint[] S = {
+        private  uint[] S = {
         0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
         0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
         0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
@@ -57,60 +56,61 @@ namespace SecurityLibrary.MD5
 
         public string GetHash(string text)
         {
+            
             message = convertToBinary(text);
-
             prepareMessage();
             _ = message.Length % 512 == 0 ? true : throw new Exception("Message not prepared properly");
-            Console.WriteLine(message);
-
-            initMDBuffers();
-            generateDWord();
-            generate_T_table();
             int NumberOfBlocks = message.Length / 512;
+            int numOfBytes = message.Length / 8;
+            byte[] MessageInBytes = new byte[numOfBytes];
+            for (int i = 0; i < numOfBytes; ++i)
+            {
+                MessageInBytes[i] = Convert.ToByte(message.Substring(8 * i, 8), 2);
+            }
             for (int i = 0; i < NumberOfBlocks; i++)
             {
-                uint[] chunk = new uint[16];
-                for (int j = 0; j < 16; j++)
-                    chunk[j] = Convert.ToUInt32(message.Substring(32 * j, 32), 2);
+                uint SavedA = a;
+                uint SavedB = b;
+                uint SavedC = c;
+                uint SavedD = d;
 
-                uint a = A;
-                uint b = B;
-                uint c = C;
-                uint d = D;
+                uint[] chunk = new uint[16];
+
+                for (int j = 0; j < 16; j++)
+                    {
+                        chunk[j] = BitConverter.ToUInt32(MessageInBytes, i * 64 + j * 4);
+                    }
+              
+
                 uint f = 0;
                 uint g = 0;
-
                 for (int k = 0; k < 4; k++)
                 {
                     for (int l = 0; l < 16; l++)
                     {
                         f = logical_functions[k].Invoke(b, c, d);
                         g = (uint)computeDWordIndex(k, l);
-                        uint tmp = d;
+                        uint tmp = b + RotateLeft((a + f + S[k * 16 + l] + chunk[g]), shiftValues[k * 16 + l]);
+                        a = d;
                         d = c;
                         c = b;
-                        b = b + leftRotate((a + f + S[k*16+l] + chunk[g]), shiftValues[k * 16 + l]);
-                        a = tmp;
-                        string Da = a.ToString("X");
-                        string Db = b.ToString("X");
-                        string Dc = c.ToString("X");
-                        string Dd = d.ToString("X");
+                        b = tmp;
                     }
                 }
-                A += a;
-                B += b;
-                C += c;
-                D += d;
+                ;
+                a += SavedA;
+                b += SavedB;
+                c += SavedC;
+                d += SavedD;
             }
 
-            string x = GetByteString(A) + GetByteString(B) + GetByteString(C) + GetByteString(D);
-            return x;
+            return GetByteString(a) + GetByteString(b) + GetByteString(c) + GetByteString(d);
+
 
         }
         private static string GetByteString(uint x)
         {
             byte[] bytes = BitConverter.GetBytes(x);
-            Array.Reverse(bytes); // Reverse the byte order
             return BitConverter.ToString(bytes).Replace("-", "").ToLower();
         }
 
@@ -131,15 +131,27 @@ namespace SecurityLibrary.MD5
             message += "1";
             message = message.PadRight(targetLength, '0');
             string binaryMessageLength = Convert.ToString(originalLength, 2).PadLeft(64, '0');
-            message += binaryMessageLength;
-        }
+            // trasnfer Binary to array of bytes and sort it 
+            int numOfBytes = binaryMessageLength.Length / 8;
+            byte[] MessageInBytes = new byte[numOfBytes];
+            for (int i = 0; i < numOfBytes; ++i)
+            {
+                MessageInBytes[i] = Convert.ToByte(binaryMessageLength.Substring(8 * i, 8), 2);
+            }
+            Array.Reverse(MessageInBytes);
+            string binaryMessage = string.Join("", MessageInBytes.Select(x => Convert.ToString(x, 2).PadLeft(8, '0')));
+            message += binaryMessage;
 
+        }
+        
+       
+         
         private int getTargetLength(int binaryLength)
         {
             int mod = binaryLength % 512;
             return mod > 448 ? (binaryLength + mod + 448) : binaryLength + (448 - mod);
         }
-
+        /*
         private void initMDBuffers()
         {
             A = Convert.ToUInt32(string.Join("", "01234567".Select(num => Convert.ToString(num - '0', 2).PadLeft(4, '0'))), 2);
@@ -178,7 +190,7 @@ namespace SecurityLibrary.MD5
                 DWord[i] = Convert.ToUInt32(temp, 2);
             }
         }
-
+        */
         private int computeDWordIndex(int k, int l)
         {
             int index = -1;
@@ -204,7 +216,7 @@ namespace SecurityLibrary.MD5
 
             return index;
         }
-        private uint leftRotate(uint x, int s)
+        private uint RotateLeft(uint x, int s)
         {
             return (x << s) | (x >> (32 - s));
         }
